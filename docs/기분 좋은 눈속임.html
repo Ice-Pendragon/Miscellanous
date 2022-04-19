@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html" />
+<meta charset="UTF-8" />
+<title>기분 좋은 눈속임</title>
+
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<!-- <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; style-src 'unsafe-inline';" /> -->
+
+<style>
+	body {
+		text-align: center;
+	}
+</style>
+
+</head>
+<body>
+
+<h1 id="clock" />
+
+<script type="text/javascript">
+<!--
+let hoursPerDay = 24;
+let minutesPerHour = 60;
+let secondsPerMinute = 60;
+const secondsPerDay = 86400;
+
+let currentDate = new Date();
+
+let hourLen = 2;
+let minuteLen = 2;
+let secondLen = 2;
+
+let currentHour = 0;
+let currentMinute = 0;
+let currentSecond = 0;
+let previousSecond = -1;
+
+function getTime() {
+	currentDate = new Date();
+	
+	//"Audit usage of navigator.userAgent, navigator.appVersion, and navigator.platform" issue
+	if (typeof x === "undefined") {
+		
+	}
+	
+	const hour = currentDate.getHours();
+	const minute = currentDate.getMinutes();
+	const second = currentDate.getSeconds();
+	
+	return (hour * 60 + minute) * 60 + second;
+}
+
+function toLen(value) {
+	if (Number.isNaN(value)) {
+		return value.toString().length;
+	}
+	
+	switch (Math.sign(value)) {
+		case 1:
+			return Math.floor(Math.log10(value)) + 1;
+		case -1:
+			return Math.floor(Math.log10(Math.abs(value))) + 2;
+		default:
+			return 1;
+	}
+}
+
+function toDigits(value, digit) {
+	if (Number.isNaN(value) || Number.isNaN(digit)) {
+		return value.toString();
+	} else if (!(Number.isInteger(digit))) {
+		return value.toString();
+	} else {
+		const len = toLen(value);
+		const toDigit = digit;
+		
+		if (len < toDigit) {
+			let result = '0';
+			result = result.repeat(toDigit - len);
+			result = result.concat(value.toString());
+			return result;
+		} else {
+			return value.toString();
+		}
+	}
+}
+
+function getNewTime() {
+	const totalSeconds = getTime();
+	const minutesPerDay = hoursPerDay * minutesPerHour;
+	currentHour = Math.floor(totalSeconds * hoursPerDay / secondsPerDay);
+	currentMinute = Math.floor(totalSeconds * minutesPerDay / secondsPerDay);
+	currentSecond = totalSeconds - Math.ceil(currentMinute * secondsPerDay / minutesPerDay);
+
+	clock.innerHTML = toDigits(currentHour, hourLen) + ':' + toDigits(currentMinute % secondsPerMinute, minuteLen) + ':' + toDigits(currentSecond, secondLen);
+	
+	setTimeout(getNewTime, 1000);
+}
+
+function init() {
+	hoursPerDay = 26;
+	minutesPerHour = Math.ceil(Math.sqrt(secondsPerDay / hoursPerDay));
+	secondsPerMinute = minutesPerHour;
+	
+	hourLen = toLen(hoursPerDay);
+	minuteLen = toLen(minutesPerHour);
+	secondLen = toLen(secondsPerMinute);
+	
+	setTimeout(getNewTime, 1000);
+}
+
+init();
+
+//-->
+</script>
+
+<h3>기분 좋은 눈속임!</h3>
+<p>이제부터 당신의 하루는 2시간 늘어난 26시간이 될 것입니다!</p>
+<p>대신에 1시간이 58분, 1분이 58초로 각각 2분, 2초씩 줄어듭니다.</p>
+<p>26시간으로 늘어난(?) 하루를 더욱 알차게 활용해 봅시다!</p>
+<p />
+<p>※ 하루의 길이는 늘어나지 않습니다.</p>
+</body>
+</html>
