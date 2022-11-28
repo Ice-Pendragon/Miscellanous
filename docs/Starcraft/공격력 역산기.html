@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>공격력 역산기</title>
+
+<script type="text/javascript">
+<!--
+
+function send_error(str) {
+	document.getElementById('result').innerHTML = '';
+	var tr = document.createElement('tr');
+	var td = document.createElement('td');
+	td.appendChild(document.createTextNode(str));
+	tr.appendChild(td);
+	document.getElementById('result').appendChild(tr);
+	return false;
+}
+
+function calc() {
+	var lv = document.form.level.value;
+	var dmg = document.form.damage.value;
+
+	if (lv == '')
+		return send_error('공업 단계가 비어 있습니다.');
+
+	if (isNaN(lv) || !(Number.isInteger(parseFloat(lv))) || lv < 1 || lv > 255)
+		return send_error('공업 단계가 1~255 사이의 정수가 아닙니다.');
+
+	if (dmg == '')
+		return send_error('표시 공격력이 비어 있습니다.');
+
+	if (isNaN(dmg) || !(Number.isInteger(parseFloat(dmg))) || dmg < 0 || dmg > 65535)
+		return send_error('표시 공격력이 0~65535 사이의 정수가 아닙니다.');
+
+	lv = parseInt(lv);
+	dmg = parseInt(dmg);
+
+	var sub1 = new Array(14);
+	var sub2 = new Array(14);
+
+	var sft = 0;
+
+	for (var i = 0; i < 16; i++) {
+		if ((lv % 2 == 0) && (dmg % 2 != 0))
+			return send_error('실현 불가능한 조합입니다.');
+		if (lv % 2 != 0)
+			break;
+
+		lv /= 2;
+		dmg /= 2;
+		sft++;
+	}
+
+	sub2[0] = sub1[0] = lv;
+
+	for (var i = 1; i < 14; i++) {
+		sub1[i] = (sub1[i-1] * sub1[i-1]) % 65536;
+		sub2[i] = (sub2[i-1] * sub1[i]) % 65536;
+	}
+
+	var answer = (sub2[13] * dmg) % (65536 >> sft);
+
+	document.getElementById('result').innerHTML = '';
+	var tr;
+	var td = document.createElement('td');
+	td.setAttribute('align', 'right');
+	td.setAttribute('valign', 'top');
+
+	lv = parseInt(document.form.level.value);
+	dmg = parseInt(document.form.damage.value);
+
+	for (var i = 0; i < (1 << sft); i++, answer += (65536 >> sft)) {
+		tr = document.createElement('tr');
+		if (answer * lv >= 65536 * 128)
+			tr.style.color = 'red';
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode(String(answer)));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode('×'));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode(String(lv)));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode('='));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode('65536'));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode('×'));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode(String( (answer * lv) >> 16 )));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode('+'));
+		tr.appendChild(td);
+
+		td = td.cloneNode(false);
+		td.appendChild(document.createTextNode(String( (answer * lv) % 65536 )));
+		tr.appendChild(td);
+
+		document.getElementById('result').appendChild(tr);
+	}
+
+	return false;
+}
+
+// 원리 : a가 홀수라면, a^(2¹⁴) ≡ 1 (mod 65536) 임을 이용한다.
+// a^(2¹³ + 2¹² + … + 2 + 1) ≡ a^(-1) (mod 65536)
+
+//-->
+</script>
+
+</head>
+<body>
+
+<div align="center">
+<h1>공격력 역산기</h1>
+
+<form name="form" onsubmit="return calc()">
+
+<table cellpadding="3" cellspacing="2">
+	<tbody>
+		<tr>
+			<td align="center" valign="middle">업당 공격력</td>
+			<td></td>
+			<td align="center" valign="middle">공업 단계</td>
+			<td></td>
+			<td align="center" valign="middle">표시 공격력</td>
+		<tr>
+			<td align="center" valign="middle">
+				<input type="submit" value="계산!"></input>
+			</td>
+			<td>×</td>
+			<td align="center" valign="middle">
+				<input type="text" name="level" value="255" size="1">
+			</td>
+			<td>=</td>
+			<td align="center" valign="middle">
+				<input type="text" name="damage" value="65535" size="3">
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+<table cellpadding="3" cellspacing="2">
+	<tbody id="result"></tbody>
+</table>
+</form>
+
+</div>
+
+<noscript>JavaScript를 이용할 수 없습니다.</noscript>
+
+</body>
+</html>
